@@ -37,3 +37,69 @@ This "weights as occurrences" interpretation has two pitfalls:
     robust. This could also happen with repeaded, non-weighted values. One
     workaround is to divide the values into group_a = values strictly < median,
     group_b = values strictly > median, then add == median to the smaller group.
+
+
+where `FPArray: TypeAlias = npt.NDArray[np.floating[Any]]`
+
+
+``` python
+def get_stacked_quantile(values: FParray, weights: FPArray, quantile: float) -> float:
+    """Get a weighted quantile for a vector of values.
+
+    :param values: array of values with shape (n,)
+    :param weights: array of weights where weights.shape == values.shape
+    :param quantile: quantile to calculate, in [0, 1]
+    :return: weighted quantile of values
+    :raises ValueError: if values and weights do not have the same length
+    :raises ValueError: if quantile is not in interval [0, 1]
+    :raises ValueError: if values array is empty (after removing zero-weight values)
+    :raises ValueError: if weights are not all positive
+    """
+```
+
+``` python
+def get_stacked_quantiles(
+    values: FPArray, weights: FPArray, quantile: float
+) -> FPArray:
+    """Get a weighted quantile for an array of vectors.
+
+    :param values: array of vectors with shape (..., m)
+        will return one m-length vector
+    :param weights: array of weights with shape (..., 1)
+        where shape[:-1] == values.shape[:-1]
+    :param quantile: quantile to calculate, in [0, 1]
+    :return: axiswise weighted quantile of an m-length vector
+    :raises ValueError: if values and weights do not have the same shape[:-1]
+
+    The "gotcha" here is that the weights must be passed as 1D vectors, not scalars.
+    """
+```
+
+``` python
+def get_stacked_median(values: FPArray, weights: FPArray) -> float:
+    """Get a weighted median for a value.
+
+    :param values: array of values with shape (n,)
+    :param weights: array of weights where weights.shape == values.shape
+    :return: weighted median of values
+    :raises ValueError: if values and weights do not have the same length
+    :raises ValueError: if values array is empty (after removing zero-weight values)
+    :raises ValueError: if weights are not all positive
+    """
+```
+
+``` python
+def get_stacked_medians(values: FPArray, weights: FPArray) -> FPArray:
+    """Get a weighted median for an array of vectors.
+
+    :param values: array of vectors with shape (..., m)
+        will return one m-length vector
+    :param weights: array of weights with shape (..., 1)
+        where shape[:-1] == values.shape[:-1]
+    :return: axiswise weighted median of an m-length vector
+    :raises ValueError: if values and weights do not have the same shape[:-1]
+
+    The "gotcha" here is that the weights must be passed as 1D vectors, not scalars.
+    """
+```
+
