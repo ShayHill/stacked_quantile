@@ -37,6 +37,7 @@ This "weights as occurrences" interpretation has two pitfalls:
 from typing import cast
 
 import numpy as np
+
 from stacked_quantile.typed_np_functions import (
     FPArray,
     np_argsort,
