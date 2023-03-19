@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stacked-quantile"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 authors = ["Shay Hill <shay_public@hotmail.com>"]
 license = "MIT"
@@ -19,7 +19,7 @@ tox-poetry-installer = {extras = ["poetry"], version = "^0.10.0"}
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.2.0"
+version = "0.3.0"
 tag_format = "$version"
 version_files = [
     "pyproject.toml:^version"
