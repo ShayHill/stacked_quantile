@@ -4,7 +4,7 @@
 :created: 2023-01-17
 """
 
-from typing import Iterator, TypeAlias
+from typing import Iterator
 
 import numpy as np
 import numpy.typing as npt
@@ -12,7 +12,7 @@ import pytest
 
 import stacked_quantile
 
-_QuantileArgs: TypeAlias = tuple[npt.NDArray[np.int_], npt.NDArray[np.int_], float]
+_QuantileArgs = tuple[npt.NDArray[np.int_], npt.NDArray[np.int_], float]
 
 
 def _get_factors(num: int) -> list[int]:

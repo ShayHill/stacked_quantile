@@ -8,13 +8,13 @@ to the subset of functionality I need.
 """
 
 
-from typing import Any, Callable, Protocol, TypeAlias, cast
+from typing import Any, Callable, Protocol, cast
 
 import numpy as np
 import numpy.typing as npt
 
-FPArray: TypeAlias = npt.NDArray[np.floating[Any]]
-SIArray: TypeAlias = npt.NDArray[np.signedinteger[Any]]
+FPArray = npt.NDArray[np.floating[Any]]
+SIArray = npt.NDArray[np.signedinteger[Any]]
 
 
 class SearchSorted(Protocol):
