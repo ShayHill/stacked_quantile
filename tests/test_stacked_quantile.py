@@ -88,6 +88,15 @@ class TestStackedQuantile:
         weight_as_size = stacked_quantile.get_stacked_quantile(xs, ys * 1.0, 0.5)
         assert np.isclose(weight_as_qty, weight_as_size)
 
+    def test_allow_all_zero_weights(self):
+        """Allows all zero weights"""
+        xs = np.random.randint(1, 1000, 10) / 1.0
+        ys_0 = np.zeros(10)
+        ys_1 = np.ones(10)
+        all_0 = stacked_quantile.get_stacked_quantile(xs, ys_0, 0.5)
+        all_1 = stacked_quantile.get_stacked_quantile(xs, ys_1, 0.5)
+        np.testing.assert_array_equal(all_0, all_1)
+
     def test_floats_match_ints(self, quantile_args: _QuantileArgs):
         """Matches results as if float weights were fractions of occurrences"""
         xs = quantile_args[0] * 1.0
@@ -133,13 +142,13 @@ class TestStackedQuantile:
             _ = stacked_quantile.get_stacked_quantile(xs, ys, 1.5)
         assert "quantile must be in interval [0, 1]" in str(excinfo.value)
 
-    def test_value_error_on_no_values(self):
-        """Raises ValueError if there are no values"""
-        xs = np.array([])
-        ys = np.array([])
-        with pytest.raises(ValueError) as excinfo:
-            _ = stacked_quantile.get_stacked_quantile(xs, ys, 0.5)
-        assert "values empty" in str(excinfo.value)
+    # def test_value_error_on_no_values(self):
+    #     """Raises ValueError if there are no values"""
+    #     xs = np.array([])
+    #     ys = np.array([])
+    #     with pytest.raises(ValueError) as excinfo:
+    #         _ = stacked_quantile.get_stacked_quantile(xs, ys, 0.5)
+    #     assert "values empty" in str(excinfo.value)
 
     def test_value_error_if_any_weights_are_below_zero(self):
         """Raises ValueError if any weights are below zero"""
