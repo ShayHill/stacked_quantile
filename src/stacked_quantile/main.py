@@ -61,16 +61,20 @@ def get_stacked_quantile(values: FPArray, weights: FPArray, quantile: float) -> 
     avalues = np.asarray(values)
     aweights = np.asarray(weights)
     if avalues.shape[-1] != aweights.shape[-1]:
-        raise ValueError("values and weights must be the same length")
+        msg = "values and weights must be the same length"
+        raise ValueError(msg)
     if quantile < 0 or quantile > 1:
-        raise ValueError("quantile must be in interval [0, 1]")
+        msg = "quantile must be in interval [0, 1]"
+        raise ValueError(msg)
 
     avalues, aweights = avalues[aweights != 0], aweights[aweights != 0]
 
     if avalues.shape == (0,):
-        raise ValueError("avalues empty (after removing zero-weight avalues)")
+        msg = "avalues empty (after removing zero-weight avalues)"
+        raise ValueError(msg)
     if any(weight < 0 for weight in aweights):
-        raise ValueError("aweights must be non-negative")
+        msg = "aweights must be non-negative"
+        raise ValueError(msg)
 
     sorter = np_argsort(avalues)
     sorted_values = avalues[sorter]
@@ -108,14 +112,11 @@ def get_stacked_quantiles(
     The "gotcha" here is that the weights must be passed as 1D vectors, not scalars.
     """
     if values.shape[:-1] != weights.shape[:-1]:
-        raise ValueError(
-            "values and weights must have the same shape up to the last axis"
-        )
+        msg = "values and weights must have the same shape up to the last axis"
+        raise ValueError(msg)
     flat_vectors: FPArray = values.reshape(-1, values.shape[-1]).T
     flat_weights = weights.flatten()
-    by_axis: list[float] = []
-    for axis in flat_vectors:
-        by_axis.append(get_stacked_quantile(axis, flat_weights, quantile))
+    by_axis = [get_stacked_quantile(x, flat_weights, quantile) for x in flat_vectors]
     return cast(FPArray, np.array(by_axis))
 
 

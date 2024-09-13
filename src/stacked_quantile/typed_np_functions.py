@@ -19,10 +19,12 @@ SIArray = npt.NDArray[np.signedinteger[Any]]
 class SearchSorted(Protocol):
     """Subset of np.searchsorted functionality."""
 
-    def __call__(self, values: FPArray, target: float, side: str) -> int: ...
+    def __call__(self, values: FPArray, target: float, side: str) -> int:
+        """Return the index where target would be inserted in values."""
+        ...
 
 
-np_argsort = cast(Callable[[npt.NDArray[Any]], SIArray], np.argsort)  # type: ignore
-np_cumsum = cast(Callable[[FPArray], FPArray], np.cumsum)  # type: ignore
-np_isclose = cast(Callable[[float, float], bool], np.isclose)  # type: ignore
-np_searchsorted = cast(SearchSorted, np.searchsorted)  # type: ignore
+np_argsort = cast(Callable[[npt.NDArray[Any]], SIArray], np.argsort)
+np_cumsum = cast(Callable[[FPArray], FPArray], np.cumsum)
+np_isclose = cast(Callable[[float, float], bool], np.isclose)
+np_searchsorted = cast(SearchSorted, np.searchsorted)
