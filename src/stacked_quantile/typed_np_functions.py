@@ -7,7 +7,6 @@ to the subset of functionality I need.
 :created: 2023-01-17
 """
 
-
 from typing import Any, Callable, Protocol, cast
 
 import numpy as np
@@ -20,8 +19,7 @@ SIArray = npt.NDArray[np.signedinteger[Any]]
 class SearchSorted(Protocol):
     """Subset of np.searchsorted functionality."""
 
-    def __call__(self, values: FPArray, target: float, side: str) -> int:
-        ...
+    def __call__(self, values: FPArray, target: float, side: str) -> int: ...
 
 
 np_argsort = cast(Callable[[npt.NDArray[Any]], SIArray], np.argsort)  # type: ignore

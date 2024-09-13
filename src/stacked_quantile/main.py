@@ -33,7 +33,6 @@ This "weights as occurrences" interpretation has two pitfalls:
 :created: 2023-01-17
 """
 
-
 from typing import cast
 
 import numpy as np

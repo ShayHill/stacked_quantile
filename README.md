@@ -102,4 +102,3 @@ def get_stacked_medians(values: FPArray, weights: FPArray) -> FPArray:
     The "gotcha" here is that the weights must be passed as 1D vectors, not scalars.
     """
 ```
-
