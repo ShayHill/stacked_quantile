@@ -4,7 +4,7 @@
 :created: 2023-01-17
 """
 
-from typing import Iterator
+from collections.abc import Iterator
 
 import numpy as np
 import numpy.typing as npt
@@ -13,6 +13,8 @@ import pytest
 import stacked_quantile
 
 _QuantileArgs = tuple[npt.NDArray[np.int_], npt.NDArray[np.int_], float]
+
+rng = np.random.default_rng()
 
 
 def _get_factors(num: int) -> list[int]:
@@ -59,23 +61,23 @@ def _get_factors(num: int) -> list[int]:
     return list(iter_factor(num)) or [1]
 
 
-@pytest.fixture(scope="function", params=range(1, 100))
+@pytest.fixture(params=range(1, 100))
 def quantile_args(request: pytest.FixtureRequest) -> _QuantileArgs:
-    values: npt.NDArray[np.int_] = np.random.randint(1, 1000, request.param)
-    weights = np.random.randint(1, 1000, request.param)
-    quantile = float(np.random.random())
+    values = np.array(rng.integers(1, 1000, size=request.param), dtype=np.int_)
+    weights = np.array(rng.integers(1, 1000, size=request.param), dtype=np.int_)
+    quantile = float(rng.random())
     return values, weights, quantile
 
 
-@pytest.fixture(scope="function", params=range(1, 100))
+@pytest.fixture(params=range(1, 100))
 def quantiles_args(request: pytest.FixtureRequest) -> _QuantileArgs:
     shape = _get_factors(request.param)
-    wshape = shape[:-1] + [1]
+    wshape = [*shape[:-1], 1]
     cvalues = request.param
     cweights = np.prod(wshape)
-    values = np.random.randint(1, 1000, cvalues).reshape(shape)
-    weights = np.random.randint(1, 1000, cweights).reshape(wshape)
-    quantile = float(np.random.random())
+    values = np.array(rng.integers(1, 1000, cvalues), dtype=np.int_).reshape(shape)
+    weights = np.array(rng.integers(1, 1000, cweights), dtype=np.int_).reshape(wshape)
+    quantile = float(rng.random())
     return values, weights, quantile
 
 
@@ -90,7 +92,7 @@ class TestStackedQuantile:
 
     def test_allow_all_zero_weights(self):
         """Allows all zero weights"""
-        xs = np.random.randint(1, 1000, 10) / 1.0
+        xs = rng.integers(1, 1000, 10) / 1.0
         ys_0 = np.zeros(10)
         ys_1 = np.ones(10)
         all_0 = stacked_quantile.get_stacked_quantile(xs, ys_0, 0.5)
@@ -131,8 +133,8 @@ class TestStackedQuantile:
 
     def test_interpolate_when_boundary_hit(self):
         """Interpolates when quantile is on boundary"""
-        xs: stacked_quantile._FPArray = np.random.randint(1, 1000, 2) * 1.0
-        ys: stacked_quantile._FPArray = np.ones(2)
+        xs = rng.integers(1, 1000, 2) * 1.0
+        ys = np.ones(2) * 1.0
         assert np.isclose(
             stacked_quantile.get_stacked_quantile(xs, ys, 0.5), (xs[0] + xs[1]) / 2
         )
@@ -151,36 +153,32 @@ class TestStackedQuantile:
 
     def test_value_error_on_lengths_do_not_match(self):
         """Raises ValueError if lengths of x and y do not match"""
-        xs = np.random.randint(1, 1000, 10) / 1.0
-        ys = np.random.randint(1, 1000, 11) / 1.0
-        with pytest.raises(ValueError) as excinfo:
+        xs = rng.integers(1, 1000, 10) * 1.0
+        ys = rng.integers(1, 1000, 11) * 1.0
+        with pytest.raises(ValueError, match="must be the same length"):
             _ = stacked_quantile.get_stacked_quantile(xs, ys, 0.5)
-        assert "values and weights must be the same length" in str(excinfo.value)
 
     def test_value_error_on_quantile_out_of_range(self):
         """Raises ValueError if quantile is not in [0, 1]"""
-        xs = np.random.randint(1, 1000, 10) / 1.0
-        ys = np.random.randint(1, 1000, 10) / 1.0
-        with pytest.raises(ValueError) as excinfo:
+        xs = rng.integers(1, 1000, 10) * 1.0
+        ys = rng.integers(1, 1000, 10) * 1.0
+        with pytest.raises(ValueError, match="quantile must be in interval"):
             _ = stacked_quantile.get_stacked_quantile(xs, ys, 1.5)
-        assert "quantile must be in interval [0, 1]" in str(excinfo.value)
 
-    # def test_value_error_on_no_values(self):
-    #     """Raises ValueError if there are no values"""
-    #     xs = np.array([])
-    #     ys = np.array([])
-    #     with pytest.raises(ValueError) as excinfo:
-    #         _ = stacked_quantile.get_stacked_quantile(xs, ys, 0.5)
-    #     assert "values empty" in str(excinfo.value)
+    def test_value_error_on_no_values(self):
+        """Raises ValueError if there are no values"""
+        xs = np.array([])
+        ys = np.array([])
+        with pytest.raises(ValueError, match="values array is empty"):
+            _ = stacked_quantile.get_stacked_quantile(xs, ys, 0.5)
 
     def test_value_error_if_any_weights_are_below_zero(self):
         """Raises ValueError if any weights are below zero"""
-        xs = np.random.randint(1, 1000, 10) / 1.0
-        ys = np.random.randint(1, 1000, 10) / 1.0
+        xs = rng.integers(1, 1000, 10) * 1.0
+        ys = rng.integers(1, 1000, 10) * 1.0
         ys[0] = -1
-        with pytest.raises(ValueError) as excinfo:
+        with pytest.raises(ValueError, match="must be non-negative"):
             _ = stacked_quantile.get_stacked_quantile(xs, ys, 0.5)
-        assert "weights must be non-negative" in str(excinfo.value)
 
 
 class TestStackedQuantiles:
@@ -197,4 +195,4 @@ class TestStackedQuantiles:
         with_2d_array = stacked_quantile.get_stacked_quantiles(
             values, weights, quantile
         )
-        assert np.allclose(with_nd_array, with_2d_array)  # type: ignore
+        assert np.allclose(with_nd_array, with_2d_array)

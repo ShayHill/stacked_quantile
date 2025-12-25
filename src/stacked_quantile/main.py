@@ -36,6 +36,7 @@ This "weights as occurrences" interpretation has two pitfalls:
 from typing import cast
 
 import numpy as np
+import numpy.typing as npt
 
 from stacked_quantile.typed_np_functions import (
     FPArray,
@@ -46,7 +47,51 @@ from stacked_quantile.typed_np_functions import (
 )
 
 
-def get_stacked_quantile(values: FPArray, weights: FPArray, quantile: float) -> float:
+def _sort_values_by_weights(
+    values: FPArray, weights: FPArray
+) -> tuple[FPArray, FPArray]:
+    """Sort values by weights."""
+    sorter = np_argsort(values)
+    sorted_values = values[sorter]
+    sorted_weights = weights[sorter]
+    return sorted_values, sorted_weights
+
+
+def validate_values_and_weights(
+    values: npt.ArrayLike, weights: npt.ArrayLike
+) -> tuple[FPArray, FPArray]:
+    """Validate values and weights.
+
+    :param values: array of values with shape (n,)
+    :param weights: array of weights with shape (n,)
+    :return: tuple of validated values and weights (cast as arrays)
+    :raises ValueError: if values and weights are not at least 1-dimensional
+    :raises ValueError: if values array is empty
+    :raises ValueError: if values and weights are not the same length
+    :raises ValueError: if weights are not non-negative
+    """
+    avalues = np.asarray(values)
+    aweights = np.asarray(weights)
+    if avalues.ndim == 0 or aweights.ndim == 0:
+        msg = "values and weights must be at least 1-dimensional"
+        raise ValueError(msg)
+    if len(avalues) == 0:
+        msg = "values array is empty"
+        raise ValueError(msg)
+    if avalues.shape[-1] != aweights.shape[-1]:
+        msg = "values and weights must be the same length"
+        raise ValueError(msg)
+    if np.any(aweights < 0):
+        msg = "weights must be non-negative"
+        raise ValueError(msg)
+    if np.all(aweights == 0):
+        aweights = np.ones_like(aweights)
+    return avalues, aweights
+
+
+def get_stacked_quantile(
+    values: npt.ArrayLike, weights: npt.ArrayLike, quantile: float
+) -> float:
     """Get a weighted quantile for a vector of values.
 
     :param values: array of values with shape (n,)
@@ -61,32 +106,14 @@ def get_stacked_quantile(values: FPArray, weights: FPArray, quantile: float) -> 
     Exclude any zero-weight values from the calculation. If all weights are zero, then
     return the unweighted median.
     """
-    avalues = np.asarray(values)
-    aweights = np.asarray(weights)
-    if avalues.ndim == 0 or aweights.ndim == 0:
-        msg = "values and weights must be at least 1-dimensional"
-        raise ValueError(msg)
-    if avalues.shape[-1] != aweights.shape[-1]:
-        msg = "values and weights must be the same length"
-        raise ValueError(msg)
     if quantile < 0 or quantile > 1:
         msg = "quantile must be in interval [0, 1]"
         raise ValueError(msg)
-    if np.any(aweights < 0):
-        msg = "weights must be non-negative"
-        raise ValueError(msg)
-    if np.all(aweights == 0):
-        aweights = np.ones_like(aweights)
 
+    avalues, aweights = validate_values_and_weights(values, weights)
     avalues, aweights = avalues[aweights != 0], aweights[aweights != 0]
 
-    if len(avalues) == 0:
-        msg = "values array is empty (after removing zero-weight values)"
-        raise ValueError(msg)
-
-    sorter = np_argsort(avalues)
-    sorted_values = avalues[sorter]
-    sorted_weights = aweights[sorter]
+    sorted_values, sorted_weights = _sort_values_by_weights(avalues, aweights)
     cum_aweights = np_cumsum(sorted_weights)
     target = cum_aweights[-1] * quantile
     index = np_searchsorted(cum_aweights, target, side="right")
