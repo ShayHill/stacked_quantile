@@ -1,6 +1,6 @@
 [project]
 name = "stacked-quantile"
-version = "0.4.0"
+version = "0.5.0"
 description = "Get weighted median values, treating weights as the number of occurrences of a given value."
 readme = "README.md"
 license = "MIT"
@@ -18,7 +18,7 @@ dev = ["commitizen>=4.10.1", "pre-commit>=4.3.0", "pytest>=8.4.2"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.4.0"
+version = "0.5.0"
 tag-format = "$version"
 major-version-zero = true
 version_files = ["pyproject.toml:^version"]
