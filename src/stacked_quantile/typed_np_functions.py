@@ -24,7 +24,7 @@ class SearchSorted(Protocol):
         ...
 
 
-np_argsort = cast(Callable[[npt.NDArray[Any]], SIArray], np.argsort)
-np_cumsum = cast(Callable[[FPArray], FPArray], np.cumsum)
-np_isclose = cast(Callable[[float, float], bool], np.isclose)
-np_searchsorted = cast(SearchSorted, np.searchsorted)
+np_argsort = cast("Callable[[npt.NDArray[Any]], SIArray]", np.argsort)
+np_cumsum = cast("Callable[[FPArray], FPArray]", np.cumsum)
+np_isclose = cast("Callable[[float, float], bool]", np.isclose)
+np_searchsorted = cast("SearchSorted", np.searchsorted)

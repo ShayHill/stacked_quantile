@@ -1,25 +1,25 @@
 [project]
-name = "stacked_quantile"
+name = "stacked-quantile"
 version = "0.4.0"
 description = "Get weighted median values, treating weights as the number of occurrences of a given value."
-authors = [{ name = "Shay Hill", email = "shay_public@hotmail.com" }]
-license = {text = "MIT"}
 readme = "README.md"
+license = "MIT"
+authors = [{ name = "Shay Hill", email = "shay_public@hotmail.com" }]
 requires-python = ">=3.9"
-dependencies = ["numpy"]
-
-[project.optional-dependencies]
-dev = ["commitizen", "pre-commit", "pytest", "tox"]
+dependencies = ["numpy>=2.0.2"]
 
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+requires = ["uv_build>=0.9.4,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["commitizen>=4.10.1", "pre-commit>=4.3.0", "pytest>=8.4.2"]
 
 
 [tool.commitizen]
 name = "cz_conventional_commits"
 version = "0.4.0"
-tag_format = "$version"
+tag-format = "$version"
 major-version-zero = true
 version_files = ["pyproject.toml:^version"]
 
@@ -30,24 +30,40 @@ profile = "black"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
+pythonpath = "tests"
+log_cli = true
 
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-envlist = py{39,310,311}
 
-[testenv]
-deps = pytest
-commands = pytest
-"""
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "S101",
+    "D",
+    "F401",
+] # Ignore assertions, docstrings, unused imports in test files
+
+[tool.ruff.format]
+docstring-code-line-length = 88
+
+[tool.ruff.lint]
+
+select = ["ALL"]
+
+ignore = [
+    "PLR", # magic values
+    "COM", # trailing commas
+    "ANN", # forbid Any
+]
 
 
 [tool.pyright]
 include = ["src"]
 exclude = ["**/__pycache__.py"]
 
-pythonVersion = "3.10"
-pythonPlatform = "Any"
+pythonVersion = "3.9"
+pythonPlatform = "All"
 
 typeCheckingMode = "strict"
 reportShadowedImports = true
@@ -60,4 +76,4 @@ reportUnnecessaryTypeIgnoreComment = true
 reportUnusedCallResult = true
 
 venvPath = "."
-venv = "./venv"
+venv = "./.venv"

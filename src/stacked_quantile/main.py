@@ -90,11 +90,17 @@ def get_stacked_quantile(values: FPArray, weights: FPArray, quantile: float) -> 
         lower = sorted_values[index - 1]
         upper = sorted_values[index]
         avg = (lower + upper) / 2
-        assert isinstance(avg, float)
+        if not isinstance(avg, float):
+            # strictly for type narrowing
+            msg = "avg is not a float"
+            raise TypeError(msg)
         return avg
 
     at_quantile = sorted_values[index]
-    assert isinstance(at_quantile, float)
+    if not isinstance(at_quantile, float):
+        # strictly for type narrowing
+        msg = "at_quantile is not a float"
+        raise TypeError(msg)
     return at_quantile
 
 
@@ -119,7 +125,7 @@ def get_stacked_quantiles(
     flat_vectors: FPArray = values.reshape(-1, values.shape[-1]).T
     flat_weights = weights.flatten()
     by_axis = [get_stacked_quantile(x, flat_weights, quantile) for x in flat_vectors]
-    return cast(FPArray, np.array(by_axis))
+    return cast("FPArray", np.array(by_axis))
 
 
 def get_stacked_median(values: FPArray, weights: FPArray) -> float:
