@@ -5,7 +5,7 @@ description = "Get weighted median values, treating weights as the number of occ
 readme = "README.md"
 license = "MIT"
 authors = [{ name = "Shay Hill", email = "shay_public@hotmail.com" }]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = ["numpy>=2.0.2"]
 
 [build-system]
@@ -62,11 +62,10 @@ ignore = [
 include = ["src"]
 exclude = ["**/__pycache__.py"]
 
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 pythonPlatform = "All"
 
 typeCheckingMode = "strict"
-reportShadowedImports = true
 reportCallInDefaultInitializer = true
 reportImplicitStringConcatenation = true
 # reportMissingSuperCall = true

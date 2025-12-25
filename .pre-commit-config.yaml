@@ -46,7 +46,7 @@ repos:
   - id: mypy
     name: mypy
     language: python
-    language_version: python 3.9
+    language_version: python 3.10
     types: [python]
     require_serial: true
     verbose: true
@@ -60,7 +60,7 @@ repos:
   rev: v3.21.2
   hooks:
   - args:
-    - --py39-plus
+    - --py310-plus
     id: pyupgrade
 
 # - repo: https://github.com/commitizen-tools/commitizen
@@ -112,7 +112,7 @@ repos:
     - id: ruff
       exclude: "tests"
       args:
-      - --target-version=py39
+      - --target-version=py310
       - --select=ALL
       - --ignore=COM812,D203,D213,ISC003,FLY,S311
       - --fix

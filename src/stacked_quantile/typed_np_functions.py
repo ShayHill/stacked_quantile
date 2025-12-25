@@ -7,13 +7,16 @@ to the subset of functionality I need.
 :created: 2023-01-17
 """
 
-from typing import Any, Callable, Protocol, cast
+from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, cast
 
 import numpy as np
 import numpy.typing as npt
 
-FPArray = npt.NDArray[np.floating[Any]]
-SIArray = npt.NDArray[np.signedinteger[Any]]
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+FPArray: TypeAlias = npt.NDArray[np.floating[Any]]
+SIArray: TypeAlias = npt.NDArray[np.signedinteger[Any]]
 
 
 class SearchSorted(Protocol):
