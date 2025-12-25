@@ -97,6 +97,29 @@ class TestStackedQuantile:
         all_1 = stacked_quantile.get_stacked_quantile(xs, ys_1, 0.5)
         np.testing.assert_array_equal(all_0, all_1)
 
+    def test_all_zero_weights_returns_unweighted_median(self):
+        """Returns unweighted median when all weights are zero"""
+        xs = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0])
+        ys = np.zeros(7)
+        result = stacked_quantile.get_stacked_quantile(xs, ys, 0.5)
+        expected = float(np.median(xs))
+        assert np.isclose(result, expected)
+
+    def test_all_zero_weights_returns_unweighted_quantile(self):
+        """Returns unweighted quantile when all weights are zero for any quantile"""
+        xs = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0])
+        ys = np.zeros(10)
+        # When all weights are zero, they're treated as equal weights (ones)
+        # This should match the result with equal weights
+        for quantile in [0.0, 0.25, 0.5, 0.75, 1.0]:
+            result_zero_weights = stacked_quantile.get_stacked_quantile(
+                xs, ys, quantile
+            )
+            result_equal_weights = stacked_quantile.get_stacked_quantile(
+                xs, np.ones_like(xs), quantile
+            )
+            assert np.isclose(result_zero_weights, result_equal_weights)
+
     def test_floats_match_ints(self, quantile_args: _QuantileArgs):
         """Matches results as if float weights were fractions of occurrences"""
         xs = quantile_args[0] * 1.0

@@ -58,18 +58,20 @@ def get_stacked_quantile(values: FPArray, weights: FPArray, quantile: float) -> 
     :raises ValueError: if values array is empty (after removing zero-weight values)
     :raises ValueError: if weights are not all positive
 
-    Exclude any non-zero weights from the calculation. If all weights are zero, then
+    Exclude any zero-weight values from the calculation. If all weights are zero, then
     return the unweighted median.
     """
     avalues = np.asarray(values)
     aweights = np.asarray(weights)
+    if avalues.ndim == 0 or aweights.ndim == 0:
+        msg = "values and weights must be at least 1-dimensional"
+        raise ValueError(msg)
     if avalues.shape[-1] != aweights.shape[-1]:
         msg = "values and weights must be the same length"
         raise ValueError(msg)
     if quantile < 0 or quantile > 1:
         msg = "quantile must be in interval [0, 1]"
         raise ValueError(msg)
-
     if np.any(aweights < 0):
         msg = "weights must be non-negative"
         raise ValueError(msg)
@@ -77,6 +79,10 @@ def get_stacked_quantile(values: FPArray, weights: FPArray, quantile: float) -> 
         aweights = np.ones_like(aweights)
 
     avalues, aweights = avalues[aweights != 0], aweights[aweights != 0]
+
+    if len(avalues) == 0:
+        msg = "values array is empty (after removing zero-weight values)"
+        raise ValueError(msg)
 
     sorter = np_argsort(avalues)
     sorted_values = avalues[sorter]
@@ -86,7 +92,9 @@ def get_stacked_quantile(values: FPArray, weights: FPArray, quantile: float) -> 
     index = np_searchsorted(cum_aweights, target, side="right")
     if index == 0:
         return sorted_values[0]
-    if np_isclose(cum_aweights[index - 1], target):
+    if index == len(sorted_values):
+        return sorted_values[-1]
+    if np_isclose(cum_aweights[index - 1], target, rtol=1e-9, atol=1e-9):
         lower = sorted_values[index - 1]
         upper = sorted_values[index]
         avg = (lower + upper) / 2

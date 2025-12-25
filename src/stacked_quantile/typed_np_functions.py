@@ -27,7 +27,17 @@ class SearchSorted(Protocol):
         ...
 
 
+class IsClose(Protocol):
+    """Subset of np.isclose functionality."""
+
+    def __call__(
+        self, a: float, b: float, rtol: float = 1e-9, atol: float = 1e-9
+    ) -> bool:
+        """Return True if a and b are close within tolerance."""
+        ...
+
+
 np_argsort = cast("Callable[[npt.NDArray[Any]], SIArray]", np.argsort)
 np_cumsum = cast("Callable[[FPArray], FPArray]", np.cumsum)
-np_isclose = cast("Callable[[float, float], bool]", np.isclose)
+np_isclose = cast("IsClose", np.isclose)
 np_searchsorted = cast("SearchSorted", np.searchsorted)
